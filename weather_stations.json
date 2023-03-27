@@ -1,0 +1,72 @@
+[
+    {
+        "name": "ADDISON, AL US",
+        "id": "USC00010063",
+        "elev": 818,
+        "lat": 34.2553,
+        "long": -87.1814
+    },
+    {
+        "name": "ALEXANDER CITY, AL US",
+        "id": "USC00010160",
+        "elev": 640,
+        "lat": 32.9453,
+        "long": -85.9481
+    },
+    {
+        "name": "ANDALUSIA 3 W, AL US",
+        "id": "USC00010252",
+        "elev": 250,
+        "lat": 31.3072,
+        "long": -86.5225
+    },
+    {
+        "name": "ASHLAND 3 ENE, AL US",
+        "id": "USC00010369",
+        "elev": 1022,
+        "lat": 33.2942,
+        "long": -85.7789
+    },
+    {
+        "name": "ATHENS, AL US",
+        "id": "USC00010390",
+        "elev": 689,
+        "lat": 34.7753,
+        "long": -86.9508
+    },
+    {
+        "name": "ATMORE, AL US",
+        "id": "USC00010402",
+        "elev": 300,
+        "lat": 31.1819,
+        "long": -87.4389
+    },
+    {
+        "name": "AUBURN NO.2, AL US",
+        "id": "USC00010425",
+        "elev": 545,
+        "lat": 32.5992,
+        "long": -85.4653
+    },
+    {
+        "name": "BANKHEAD L&D, AL US",
+        "id": "USC00010505",
+        "elev": 280,
+        "lat": 33.4528,
+        "long": -87.3572
+    },
+    {
+        "name": "BAY MINETTE, AL US",
+        "id": "USC00010583",
+        "elev": 271,
+        "lat": 30.8839,
+        "long": -87.7853
+    },
+    {
+        "name": "BELLE MINA 2 N, AL US",
+        "id": "USC00010655",
+        "elev": 603,
+        "lat": 34.6892,
+        "long": -86.8819
+    }
+]
