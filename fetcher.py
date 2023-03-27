@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import requests
-from geopy import distance
+#from geopy import distance
 from bs4 import BeautifulSoup
 
 token = 'zEiJrayApRaCovHXbbezMyoBibhTilBL'

@@ -68,5 +68,145 @@
         "elev": 603,
         "lat": 34.6892,
         "long": -86.8819
+    },
+    {
+        "name": "BESSEMER 3 WSW, AL US",
+        "id": "USC00010764",
+        "elev": 445,
+        "lat": 33.3953,
+        "long": -87.0078
+    },
+    {
+        "name": "BREWTON 3 SSE, AL US",
+        "id": "USC00011084",
+        "elev": 85,
+        "lat": 31.0583,
+        "long": -87.0550
+    },
+    {
+        "name": "CHILDERSBURG WTP, AL US",
+        "id": "USC00011620",
+        "elev": 418,
+        "lat": 33.2850,
+        "long": -86.3431
+    },
+    {
+        "name": "CLANTON, AL US",
+        "id": "USC00011694",
+        "elev": 590,
+        "lat": 32.8161,
+        "long": -86.6042
+    },
+    {
+        "name": "CLAYTON, AL US",
+        "id": "USC00011725",
+        "elev": 569,
+        "lat": 31.8708,
+        "long": -85.4500
+    },
+    {
+        "name": "CODEN, AL US",
+        "id": "USC00011803",
+        "elev": 12,
+        "lat": 30.3875,
+        "long": -88.2269
+    },
+    {
+        "name": "CULLMAN NAHS, AL US",
+        "id": "USC00012096",
+        "elev": 811,
+        "lat": 34.1925,
+        "long": -86.7972
+    },
+    {
+        "name": "DEMOPOLIS L&D, AL US",
+        "id": "USC00012245",
+        "elev": 100,
+        "lat": 32.5192,
+        "long": -87.8800
+    },
+    {
+        "name": "ENTERPRISE 4 W, AL US",
+        "id": "USC00012675",
+        "elev": 337,
+        "lat": 31.2975,
+        "long": -85.8997
+    },
+    {
+        "name": "EVERGREEN, AL US",
+        "id": "USC00012758",
+        "elev": 290,
+        "lat": 31.4450,
+        "long": -86.9533
+    },
+    {
+        "name": "FAIRHOPE 2 NE, AL US",
+        "id": "USC00012813",
+        "elev": 23,
+        "lat": 30.5467,
+        "long": -87.8808
+    },
+    {
+        "name": "FAYETTE, AL US",
+        "id": "USC00012883",
+        "elev": 357,
+        "lat": 33.7092,
+        "long": -87.8153
+    },
+    {
+        "name": "GADSDEN, AL US",
+        "id": "USC00013154",
+        "elev": 565,
+        "lat": 34.0219,
+        "long": 85.9878
+    },
+    {
+        "name": "GAINESVILLE LOCK, AL US",
+        "id": "USC00013160",
+        "elev": 125,
+        "lat": 32.8347,
+        "long": -88.1342
+    },
+    {
+        "name": "GENEVA #2, AL US",
+        "id": "USC00013251",
+        "elev": 145,
+        "lat": 31.0383,
+        "long": -85.8708
+    },
+    {
+        "name": "GREENSBORO, AL US",
+        "id": "USC00013511",
+        "elev": 249,
+        "lat": 32.6922,
+        "long": -87.5761
+    },
+    {
+        "name": "GREENVILLE, AL US",
+        "id": "USC00013519",
+        "elev": 342,
+        "lat": 31.7900,
+        "long": -86.6086
+    },
+    {
+        "name": "GUNTERSVILLE, AL US",
+        "id": "USC00013573",
+        "elev": 578,
+        "lat": 34.3344,
+        "long": -86.3297
+    },
+    {
+        "name": "HALEYVILLE, AL US",
+        "id": "USC00013620",
+        "elev": 920,
+        "lat": 34.2314,
+        "long": -87.6353
+    },
+    {
+        "name": "HAMILTON 3 S, AL US",
+        "id": "USC00013645",
+        "elev": 435,
+        "lat": 34.0967,
+        "long": -87.9914
     }
 ]
