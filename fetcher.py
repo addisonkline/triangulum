@@ -7,24 +7,29 @@ from bs4 import BeautifulSoup
 token = 'zEiJrayApRaCovHXbbezMyoBibhTilBL'
 
 # Input coordinates
-input_coords = (40.7128, -74.0060)
+#(38.45, -90.0060)
+input_coords = (40,7128, -74.0060)
 
 # Load weather station data
 station_data = pd.read_json("weather_stations.json")
 
 # Calculate distances between input coordinates and weather stations
+"""
 distances_list = []
-for i in range (3):
+for i in range (10):
     station_coords = (station_data.loc[i, 'lat'], station_data.loc[i, 'long'])
     distances_list.append(distance.distance(input_coords, (station_data.loc[i, 'lat'], station_data.loc[i, 'long'])).miles)
-
 distances = np.array(distances_list)
+"""
+# geopy was being a pain with distances between places of different altitudes
+distances = np.sqrt((station_data['lat'] - input_coords[0]) ** 2 + (station_data['long'] - input_coords[1]) ** 2)
 
 # Get indices of the three nearest weather stations
 nearest_indices = np.argsort(distances)[:3]
-d1 = distances[0]
-d2 = distances[1]
-d3 = distances[2]
+
+d1 = distances[nearest_indices[0]]
+d2 = distances[nearest_indices[1]]
+d3 = distances[nearest_indices[2]]
 
 # Loop through nearest weather stations and get climate normals
 for idx in nearest_indices:
@@ -51,5 +56,5 @@ for idx in nearest_indices:
     
     # Print results
     df = pd.DataFrame(data=np.array([max_temp_normals, min_temp_normals, precip_normals]), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    print(f'Station Name: {station_name}, Distance: {distances[idx]} mi')
+    print(f'Station Name: {station_name}, Distance: {distances[idx]} units')
     print(df)
