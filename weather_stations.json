@@ -208,5 +208,75 @@
         "elev": 435,
         "lat": 34.0967,
         "long": -87.9914
+    },
+    {
+        "name": "HANCEVILLE, AL US",
+        "id": "USC00013655",
+        "elev": 590,
+        "lat": 34.0678,
+        "long": -86.7911
+    },
+    {
+        "name": "HEADLAND, AL US",
+        "id": "USC00013761",
+        "elev": 370,
+        "lat": 31.3625,
+        "long": -85.3397
+    },
+    {
+        "name": "HEFLIN, AL US",
+        "id": "USC00013775",
+        "elev": 1000,
+        "lat": 33.6436,
+        "long": -85.6092
+    },
+    {
+        "name": "JACKSON, AL US",
+        "id": "USC00014193",
+        "elev": 220,
+        "lat": 31.5253,
+        "long": -87.9278
+    },
+    {
+        "name": "JASPER, AL US",
+        "id": "USC00014226",
+        "elev": 486,
+        "lat": 33.9047,
+        "long": -87.3153
+    },
+    {
+        "name": "MARION JUNCTION 2 NE, AL US",
+        "id": "USC00015121",
+        "elev": 200,
+        "lat": 32.4714,
+        "long": -87.2314
+    },
+    {
+        "name": "MILSTEAD, AL US",
+        "id": "USC00015439",
+        "elev": 215,
+        "lat": 32.4419,
+        "long": -85.8889
+    },
+    {
+        "name": "MOULTON 2, AL US",
+        "id": "USC00015635",
+        "elev": 622,
+        "lat": 34.4883,
+        "long": -87.2989
+    },
+    {
+        "name": "OPELIKA, AL US",
+        "id": "USC00016129",
+        "elev": 640,
+        "lat": 32.6592,
+        "long": -85.4492
+    },
+    {
+        "name": "PINSON, AL US",
+        "id": "USC00016478",
+        "elev": 608,
+        "lat": 33.6906,
+        "long": -86.6850
     }
 ]

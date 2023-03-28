@@ -1,14 +1,13 @@
 import numpy as np
 import pandas as pd
 import requests
+import calculator
 #from geopy import distance
 from bs4 import BeautifulSoup
 
-token = 'zEiJrayApRaCovHXbbezMyoBibhTilBL'
-
 # Input coordinates
 #(38.45, -90.0060)
-input_coords = (40,7128, -74.0060)
+input_coords = (40.7128, -74.0060)
 
 # Load weather station data
 station_data = pd.read_json("weather_stations.json")
@@ -30,6 +29,8 @@ nearest_indices = np.argsort(distances)[:3]
 d1 = distances[nearest_indices[0]]
 d2 = distances[nearest_indices[1]]
 d3 = distances[nearest_indices[2]]
+
+dfs = []
 
 # Loop through nearest weather stations and get climate normals
 for idx in nearest_indices:
@@ -55,6 +56,15 @@ for idx in nearest_indices:
         precip_normals.append(json_data[month]['MLY-PRCP-NORMAL'])
     
     # Print results
-    df = pd.DataFrame(data=np.array([max_temp_normals, min_temp_normals, precip_normals]), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    print(f'Station Name: {station_name}, Distance: {distances[idx]} units')
-    print(df)
+    df = pd.DataFrame(data=np.array([max_temp_normals, min_temp_normals, precip_normals]).astype(np.float64), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    #print(f'Station Name: {station_name}, Distance: {distances[idx]} units')
+    #print(df)
+    dfs.append(df)
+
+print(f'Estimated Climate Normals for {input_coords}')
+print(calculator.calculate(d1, d2, d3, dfs))
+print("")
+print('Station Contributions:')
+print(f'1. {station_data.loc[nearest_indices[0], "name"]} ({station_data.loc[nearest_indices[0], "id"]}): {round(100*(((1 - (d1/(d1 + d2 + d3)))/2)), 1)}%')
+print(f'2. {station_data.loc[nearest_indices[1], "name"]} ({station_data.loc[nearest_indices[1], "id"]}): {round(100*(((1 - (d2/(d1 + d2 + d3)))/2)), 1)}%')
+print(f'3. {station_data.loc[nearest_indices[2], "name"]} ({station_data.loc[nearest_indices[2], "id"]}): {round(100*(((1 - (d3/(d1 + d2 + d3)))/2)), 1)}%')
