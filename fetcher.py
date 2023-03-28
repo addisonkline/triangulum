@@ -6,8 +6,9 @@ import calculator
 from bs4 import BeautifulSoup
 
 # Input coordinates
-#(38.45, -90.0060)
-input_coords = (40.7128, -74.0060)
+#(38.4500, -90.0060) St. Louis
+#(40.7128, -74.0060) NYC
+input_coords = (32.7864, -86.8727)
 
 # Load weather station data
 station_data = pd.read_json("weather_stations.json")

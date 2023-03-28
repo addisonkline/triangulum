@@ -278,5 +278,103 @@
         "elev": 608,
         "lat": 33.6906,
         "long": -86.6850
+    },
+    {
+        "name": "ROBERTSDALE, AL US",
+        "id": "USC00016988",
+        "elev": 161,
+        "lat": 30.5653,
+        "long": -87.7017
+    },
+    {
+        "name": "RUSSELLVILLE #2, AL US",
+        "id": "USC00017131",
+        "elev": 830,
+        "lat": 34.5100,
+        "long": -87.7319
+    },
+    {
+        "name": "SAND MT SUBSTN, AL US",
+        "id": "USC00017207",
+        "elev": 1190,
+        "lat": 34.2878,
+        "long": -85.9681
+    },
+    {
+        "name": "SCOTTSBORO, AL US",
+        "id": "USC00017304",
+        "elev": 615,
+        "lat": 34.6736,
+        "long": -86.0536
+    },
+    {
+        "name": "SELMA, AL US",
+        "id": "USC00017366",
+        "elev": 147,
+        "lat": 32.4111,
+        "long": -87.0144
+    },
+    {
+        "name": "SYLACAUGA 4 NE, AL US",
+        "id": "USC00017999",
+        "elev": 490,
+        "lat": 33.2053,
+        "long": -86.2114
+    },
+    {
+        "name": "TALLADEGA, AL US",
+        "id": "USC00018024",
+        "elev": 448,
+        "lat": 33.4164,
+        "long": -86.1350
+    },
+    {
+        "name": "THOMASVILLE, AL US",
+        "id": "USC00018178",
+        "elev": 390,
+        "lat": 31.9172,
+        "long": -87.7347
+    },
+    {
+        "name": "TUSCALOOSA ACFD, AL US",
+        "id": "USC00018380",
+        "elev": 169,
+        "lat": 33.2119,
+        "long": -87.6161
+    },
+    {
+        "name": "UNION SPRINGS 9 S, AL US",
+        "id": "USC00018438",
+        "elev": 440,
+        "lat": 32.0142,
+        "long": -85.7464
+    },
+    {
+        "name": "VALLEY HEAD, AL US",
+        "id": "USC00018469",
+        "elev": 1121,
+        "lat": 34.5686,
+        "long": -85.6064
+    },
+    {
+        "name": "VERNON, AL US",
+        "id": "USC00018517",
+        "elev": 298,
+        "lat": 33.7392,
+        "long": -88.1275
+    },
+    {
+        "name": "WHATLEY, AL US",
+        "id": "USC00018867",
+        "elev": 170,
+        "lat": 31.6508,
+        "long": -87.7097
+    },
+    {
+        "name": "WINFIELD 2 SW, AL US",
+        "id": "USC00018998",
+        "elev": 520,
+        "lat": 33.9108,
+        "long": -87.8469
     }
 ]
