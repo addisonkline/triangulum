@@ -3,12 +3,19 @@ import pandas as pd
 import requests
 import calculator
 #from geopy import distance
-from bs4 import BeautifulSoup
 
-# Input coordinates
+version = 1.0
+normal_period = "1991-2020"
+
+# Input coordinates and corresponding elevation
 #(38.4500, -90.0060) St. Louis
 #(40.7128, -74.0060) NYC
 input_coords = (32.7864, -86.8727)
+elev_response = requests.get(f'https://epqs.nationalmap.gov/v1/json?x={input_coords[1]}&y={input_coords[0]}&units=Feet&wkid=4326&includeDate=False').json() # usgs inverts latitude and longitude interestingly enough
+input_elev = elev_response["value"]
+
+# TODO: make this better
+lapse = 3.56
 
 # Load weather station data
 station_data = pd.read_json("weather_stations.json")
@@ -56,16 +63,24 @@ for idx in nearest_indices:
         min_temp_normals.append(json_data[month]['MLY-TMIN-NORMAL'])
         precip_normals.append(json_data[month]['MLY-PRCP-NORMAL'])
     
-    # Print results
-    df = pd.DataFrame(data=np.array([max_temp_normals, min_temp_normals, precip_normals]).astype(np.float64), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    #print(f'Station Name: {station_name}, Distance: {distances[idx]} units')
-    #print(df)
+    # turn into np arrays and adjust for elevation
+    elev = station_data.loc[idx, 'elev']
+    arr_max_temp_normals = np.array(max_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
+    arr_min_temp_normals = np.array(min_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
+    arr_precip_normals = np.array(precip_normals).astype(np.float64)
+
+    # Compile/append results
+    df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals]).astype(np.float64), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     dfs.append(df)
 
-print(f'Estimated Climate Normals for {input_coords}')
-print(calculator.calculate(d1, d2, d3, dfs))
+print(51*'- ')
+print(f'Triangulum v{version} (stations supported = {station_data.shape[0]})')
+print(51*'- ')
+print(f'Estimated {normal_period} Climate Normals for {input_coords} (elev {round(input_elev)} ft)')
+print(calculator.calculate(d1, d2, d3, dfs, elev, lapse))
 print("")
 print('Station Contributions:')
 print(f'1. {station_data.loc[nearest_indices[0], "name"]} ({station_data.loc[nearest_indices[0], "id"]}): {round(100*(((1 - (d1/(d1 + d2 + d3)))/2)), 1)}%')
 print(f'2. {station_data.loc[nearest_indices[1], "name"]} ({station_data.loc[nearest_indices[1], "id"]}): {round(100*(((1 - (d2/(d1 + d2 + d3)))/2)), 1)}%')
 print(f'3. {station_data.loc[nearest_indices[2], "name"]} ({station_data.loc[nearest_indices[2], "id"]}): {round(100*(((1 - (d3/(d1 + d2 + d3)))/2)), 1)}%')
+print(51*'- ')
