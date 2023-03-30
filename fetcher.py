@@ -6,7 +6,7 @@ import koppen
 import trewartha
 #from geopy import distance
 
-version = 1.0
+version = 1.1
 normal_period = "1991-2020"
 
 # Input coordinates and corresponding elevation
