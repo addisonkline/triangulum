@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import requests
 import calculator
+import koppen
+import trewartha
 #from geopy import distance
 
 version = 1.0
@@ -73,11 +75,17 @@ for idx in nearest_indices:
     df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals]).astype(np.float64), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     dfs.append(df)
 
+result = calculator.calculate(d1, d2, d3, dfs, input_elev, lapse)
+
 print(51*'- ')
 print(f'Triangulum v{version} (stations supported = {station_data.shape[0]})')
 print(51*'- ')
 print(f'Estimated {normal_period} Climate Normals for {input_coords} (elev {round(input_elev)} ft)')
-print(calculator.calculate(d1, d2, d3, dfs, elev, lapse))
+print(result)
+print("")
+print(f'Predicted Climate Classification of {input_coords} (elev {round(input_elev)} ft)')
+print(f'Koppen: {koppen.koppen(result)}')
+print(f'Trewartha: {trewartha.trewartha(result)}')
 print("")
 print('Station Contributions:')
 print(f'1. {station_data.loc[nearest_indices[0], "name"]} ({station_data.loc[nearest_indices[0], "id"]}): {round(100*(((1 - (d1/(d1 + d2 + d3)))/2)), 1)}%')
