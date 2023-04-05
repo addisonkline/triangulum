@@ -14,7 +14,7 @@ def koppen(df):
             classification += "F"
         
     else:
-        precip_threshold = 20*(5/9)*(df.loc["Mean Temp (F)", "Year"] - 32)
+        precip_threshold = 20*(5/9)*(df.loc["Daily Mean Temp (F)", "Year"] - 32)
         if (df.iloc[3][3:8].sum()/df.iloc[3][0:12].sum() >= 0.7):
             precip_threshold += 280
         elif (df.iloc[3][3:8].sum()/df.iloc[3][0:12].sum() >= 0.3):
@@ -23,7 +23,7 @@ def koppen(df):
         if ((25.4 * df.loc["Precip (in)", "Year"])/precip_threshold < 0.5): # arid climates
             classification += "BW"
 
-            if(df.loc["Mean Temp (F)", "Year"] > 64.4):
+            if(df.loc["Daily Mean Temp (F)", "Year"] > 64.4):
                 classification += "h"
             else:
                 classification += "k"
@@ -31,7 +31,7 @@ def koppen(df):
         elif ((25.4 * df.loc["Precip (in)", "Year"])/precip_threshold < 1): # semiarid climates
             classification += "BS"
             
-            if(df.loc["Mean Temp (F)", "Year"] >= 64.4):
+            if(df.loc["Daily Mean Temp (F)", "Year"] >= 64.4):
                 classification += "h"
             else:
                 classification += "k"

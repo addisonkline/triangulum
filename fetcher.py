@@ -6,7 +6,7 @@ import koppen
 import trewartha
 #from geopy import distance
 
-version = 1.1
+version = 1.2
 normal_period = "1991-2020"
 
 # Input coordinates and corresponding elevation
@@ -59,20 +59,26 @@ for idx in nearest_indices:
     max_temp_normals = []
     min_temp_normals = []
     precip_normals = []
+    max_temp_std = []
+    min_temp_std = []
 
     for month in range (12):
         max_temp_normals.append(json_data[month]['MLY-TMAX-NORMAL'])
         min_temp_normals.append(json_data[month]['MLY-TMIN-NORMAL'])
         precip_normals.append(json_data[month]['MLY-PRCP-NORMAL'])
+        max_temp_std.append(json_data[month]['MLY-TMAX-STDDEV'])
+        min_temp_std.append(json_data[month]['MLY-TMIN-STDDEV'])
     
     # turn into np arrays and adjust for elevation
     elev = station_data.loc[idx, 'elev']
     arr_max_temp_normals = np.array(max_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
     arr_min_temp_normals = np.array(min_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
     arr_precip_normals = np.array(precip_normals).astype(np.float64)
+    arr_max_temp_std = np.array(max_temp_std).astype(np.float64)
+    arr_min_temp_std = np.array(min_temp_std).astype(np.float64)
 
     # Compile/append results
-    df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals]).astype(np.float64), index=['Max Temp (F)', 'Min Temp (F)', 'Precip (in)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals, arr_max_temp_std, arr_min_temp_std]).astype(np.float64), index=['Monthly Mean Max Temp (F)', 'Monthly Mean Min Temp (F)', 'Precip (in)', 'Monthly Max Temp StdDev (F)', 'Monthly Min Temp StdDev (F)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     dfs.append(df)
 
 result = calculator.calculate(d1, d2, d3, dfs, input_elev, lapse)
@@ -82,6 +88,12 @@ print(f'Triangulum v{version} (stations supported = {station_data.shape[0]})')
 print(51*'- ')
 print(f'Estimated {normal_period} Climate Normals for {input_coords} (elev {round(input_elev)} ft)')
 print(result)
+print("")
+print(f'Estimated {normal_period} Climate Normal Percentiles for {input_coords} (elev {round(input_elev)} ft)')
+print(calculator.normal_probabilities(result))
+print("")
+print(f'Estimated {normal_period} Climate Normal Occurrence Probabilities for {input_coords} (elev {round(input_elev)} ft)')
+print(calculator.occurrence_probabilities(result))
 print("")
 print(f'Predicted Climate Classification of {input_coords} (elev {round(input_elev)} ft)')
 print(f'Koppen: {koppen.koppen(result)}')

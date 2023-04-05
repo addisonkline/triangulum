@@ -14,7 +14,7 @@ def trewartha(df):
             classification += "i"
         
     else:
-        precip_threshold = 10*((5/9)*(df.loc["Mean Temp (F)", "Year"] - 32) - 10) + 3*(df.iloc[3][3:8].sum()/df.iloc[3][0:12].sum())
+        precip_threshold = 10*((5/9)*(df.loc["Daily Mean Temp (F)", "Year"] - 32) - 10) + 3*(df.iloc[3][3:8].sum()/df.iloc[3][0:12].sum())
         if ((25.4 * df.loc["Precip (in)", "Year"])/precip_threshold < 1): # arid climates
             classification += "BW"
         elif ((25.4 * df.loc["Precip (in)", "Year"])/precip_threshold < 2): # semi arid climates
