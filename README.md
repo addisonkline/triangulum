@@ -2,8 +2,8 @@
 ## General Information
 - Project creator: Addison Kline (www.github.com/addisonkline)
 - Project started: March 26, 2023
-- Current version: 1.0
-- Current number of stations supported: 54
+- Current version: 1.3
+- Current number of stations supported: 6078
 
 ## Summary
 The name Triangulum (Latin for "triangle") comes from the method of triangulation used to estimate climate normals. The program takes in a set of input coordinates and finds the three nearest weather stations with 1991-2020 climate normal data for temperature and precipitation. It then calculates a weighted average accordingly (shorter distance = heavier weight) and finally adjusts for elevation. 
