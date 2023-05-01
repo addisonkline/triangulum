@@ -2,7 +2,7 @@
 ## General Information
 - Project creator: Addison Kline (www.github.com/addisonkline)
 - Project started: March 26, 2023
-- Current version: 1.0
+- Current version: 1.3
 - Current number of stations supported: 54
 
 ## Summary

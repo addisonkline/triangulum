@@ -1,18 +1,19 @@
 import numpy as np
 import pandas as pd
+import time
 import requests
 import calculator
 import koppen
 import trewartha
 #from geopy import distance
 
-version = 1.2
+version = 1.3
 normal_period = "1991-2020"
 
 # Input coordinates and corresponding elevation
 #(38.4500, -90.0060) St. Louis
 #(40.7128, -74.0060) NYC
-input_coords = (32.7864, -86.8727)
+input_coords = (38.6488, -90.3106)
 elev_response = requests.get(f'https://epqs.nationalmap.gov/v1/json?x={input_coords[1]}&y={input_coords[0]}&units=Feet&wkid=4326&includeDate=False').json() # usgs inverts latitude and longitude interestingly enough
 input_elev = elev_response["value"]
 
@@ -21,6 +22,9 @@ lapse = 3.56
 
 # Load weather station data
 station_data = pd.read_json("weather_stations.json")
+
+# create name attribute
+station_data['name'] = station_data['city'] + ", " + station_data['state'] + ", " + station_data['country']
 
 # Calculate distances between input coordinates and weather stations
 """
@@ -49,6 +53,7 @@ for idx in nearest_indices:
     station_name = station_data.loc[idx, 'name']
     
     # Make request to NOAA website for climate normals
+    time.sleep(0.5)
     url = f"https://www.ncei.noaa.gov/access/services/data/v1?dataset=normals-monthly-1991-2020&stations={station_id}&startDate=2022-01-01&endDate=2022-12-31&format=json"
     response = requests.get(url)
     
@@ -71,8 +76,8 @@ for idx in nearest_indices:
     
     # turn into np arrays and adjust for elevation
     elev = station_data.loc[idx, 'elev']
-    arr_max_temp_normals = np.array(max_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
-    arr_min_temp_normals = np.array(min_temp_normals).astype(np.float64) + ((elev/1000)*lapse)
+    arr_max_temp_normals = np.array(max_temp_normals).astype(np.float64) + (((elev - input_elev)/1000)*lapse) # adjust to the elevation of the input coordinates
+    arr_min_temp_normals = np.array(min_temp_normals).astype(np.float64) + (((elev - input_elev)/1000)*lapse) # same as above
     arr_precip_normals = np.array(precip_normals).astype(np.float64)
     arr_max_temp_std = np.array(max_temp_std).astype(np.float64)
     arr_min_temp_std = np.array(min_temp_std).astype(np.float64)
@@ -81,7 +86,7 @@ for idx in nearest_indices:
     df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals, arr_max_temp_std, arr_min_temp_std]).astype(np.float64), index=['Monthly Mean Max Temp (F)', 'Monthly Mean Min Temp (F)', 'Precip (in)', 'Monthly Max Temp StdDev (F)', 'Monthly Min Temp StdDev (F)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     dfs.append(df)
 
-result = calculator.calculate(d1, d2, d3, dfs, input_elev, lapse)
+result = calculator.normals(d1, d2, d3, dfs, input_elev, lapse)
 
 print(51*'- ')
 print(f'Triangulum v{version} (stations supported = {station_data.shape[0]})')
