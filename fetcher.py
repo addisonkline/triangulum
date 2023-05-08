@@ -2,18 +2,23 @@ import numpy as np
 import pandas as pd
 import time
 import requests
+import sys
 import calculator
 import koppen
 import trewartha
 #from geopy import distance
 
-version = 1.3
+version = 1.4
 normal_period = "1991-2020"
 
 # Input coordinates and corresponding elevation
 #(38.4500, -90.0060) St. Louis
 #(40.7128, -74.0060) NYC
-input_coords = (38.6488, -90.3106)
+lat = float(sys.argv[1])
+lon = float(sys.argv[2])
+is_metric = True if (sys.argv[3] == 'True') else False
+
+input_coords = (lat, lon) if (lat and lon) else (38.6488, -90.3106)
 elev_response = requests.get(f'https://epqs.nationalmap.gov/v1/json?x={input_coords[1]}&y={input_coords[0]}&units=Feet&wkid=4326&includeDate=False').json() # usgs inverts latitude and longitude interestingly enough
 input_elev = elev_response["value"]
 
@@ -86,21 +91,23 @@ for idx in nearest_indices:
     df = pd.DataFrame(data=np.array([arr_max_temp_normals, arr_min_temp_normals, arr_precip_normals, arr_max_temp_std, arr_min_temp_std]).astype(np.float64), index=['Monthly Mean Max Temp (F)', 'Monthly Mean Min Temp (F)', 'Precip (in)', 'Monthly Max Temp StdDev (F)', 'Monthly Min Temp StdDev (F)'], columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     dfs.append(df)
 
-result = calculator.normals(d1, d2, d3, dfs, input_elev, lapse)
+result = calculator.normals(d1, d2, d3, dfs, input_elev, lapse, is_metric)
+elev_to_print = (str(round(0.3048*input_elev)) + " m") if (is_metric == True) else (str(round(input_elev)) + " ft")
 
 print(51*'- ')
 print(f'Triangulum v{version} (stations supported = {station_data.shape[0]})')
+print(f'Metric units: {is_metric}')
 print(51*'- ')
-print(f'Estimated {normal_period} Climate Normals for {input_coords} (elev {round(input_elev)} ft)')
+print(f'Estimated {normal_period} Climate Normals for {input_coords} (elev {elev_to_print})')
 print(result)
 print("")
-print(f'Estimated {normal_period} Climate Normal Percentiles for {input_coords} (elev {round(input_elev)} ft)')
-print(calculator.normal_probabilities(result))
+print(f'Estimated {normal_period} Climate Normal Percentiles for {input_coords} (elev {elev_to_print})')
+print(calculator.normal_probabilities(result, is_metric))
 print("")
-print(f'Estimated {normal_period} Climate Normal Occurrence Probabilities for {input_coords} (elev {round(input_elev)} ft)')
-print(calculator.occurrence_probabilities(result))
+print(f'Estimated {normal_period} Climate Normal Occurrence Probabilities for {input_coords} (elev {elev_to_print})')
+print(calculator.occurrence_probabilities(result, is_metric))
 print("")
-print(f'Predicted Climate Classification of {input_coords} (elev {round(input_elev)} ft)')
+print(f'Predicted Climate Classification of {input_coords} (elev {elev_to_print})')
 print(f'Koppen: {koppen.koppen(result)}')
 print(f'Trewartha: {trewartha.trewartha(result)}')
 print("")
