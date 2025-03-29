@@ -16,5 +16,12 @@ def normals(lat: float, lon: float, metric: bool = False, normals: str = "1991-2
     response = client.get_location_normals(lat, lon)
     print(response.normals)
 
+@app.command()
+def info():
+    """
+    Get general info about Triangulum.
+    """
+    print("Hello, world!")
+
 if __name__ == "__main__":
     app()

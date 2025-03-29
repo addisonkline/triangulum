@@ -43,7 +43,7 @@ def get_location_nearest_stations(lat: float, lon: float) -> list[Station]:
         station_this = Station(
             id=station_this_series.get('id'),
             lat=station_this_series.get('lat'),
-            lon=station_this_series.get('lon'),
+            lon=station_this_series.get('long'),
             elev=station_this_series.get('elev'),
             city=station_this_series.get('city'),
             state=station_this_series.get('state'),

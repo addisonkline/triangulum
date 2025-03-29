@@ -6,7 +6,7 @@ Created by Addison Kline in December 2024
 from pydantic import BaseModel
 from pandas import DataFrame
 # internal imports
-from triangulum.models import Station
+from triangulum.models.station import Station
 
 class NormalsResponse(BaseModel):
     # input values
@@ -20,6 +20,9 @@ class NormalsResponse(BaseModel):
     # actual normals
     normals: DataFrame
 
+    class Config:
+        arbitrary_types_allowed=True
+
 class NormalProbabilityResponse(BaseModel):
     # input values
     lat: float
@@ -32,6 +35,9 @@ class NormalProbabilityResponse(BaseModel):
     # actual normal probs
     normal_probs: DataFrame
 
+    class Config:
+        arbitrary_types_allowed=True
+
 class OccurrenceProbabilityResponse(BaseModel):
     # input values
     lat: float
@@ -43,6 +49,9 @@ class OccurrenceProbabilityResponse(BaseModel):
     timestamp: str
     # actual normal probs
     occurrence_probs: DataFrame
+
+    class Config:
+        arbitrary_types_allowed=True
 
 class KoppenResponse(BaseModel):
     # input values
@@ -57,6 +66,9 @@ class KoppenResponse(BaseModel):
     code: str
     summary: str
 
+    class Config:
+        arbitrary_types_allowed=True
+
 class TrewarthaResponse(BaseModel):
     # input values
     lat: float
@@ -69,6 +81,9 @@ class TrewarthaResponse(BaseModel):
     # actual classification stuff
     code: str
     summary: str
+    
+    class Config:
+        arbitrary_types_allowed=True
 
 class SummaryResponse(BaseModel):
     # input values
@@ -88,3 +103,6 @@ class SummaryResponse(BaseModel):
     trewartha: TrewarthaResponse
     # other
     nearest_stations: list[Station]
+    
+    class Config:
+        arbitrary_types_allowed=True
