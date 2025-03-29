@@ -1,8 +1,6 @@
 import requests
 from pypdf import PdfReader
 
-token = 'zEiJrayApRaCovHXbbezMyoBibhTilBL'
-
 # Make request to NCEI API for list of weather stations with 1991-2020 normal data
 url = "https://www.ncei.noaa.gov/access/search/data-search/normals-monthly-1991-2020?dataTypes=MLY-TMIN-NORMAL&dataTypes=MLY-TMAX-NORMAL&dataTypes=MLY-DUTR-NORMAL&dataTypes=MLY-PRCP-NORMAL&bbox=71.351,-178.217,18.925,179.769&place=Country:117"
 response = requests.get(url, headers = {'token': token})
