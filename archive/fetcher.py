@@ -3,9 +3,9 @@ import pandas as pd
 import time
 import requests
 import sys
-import calculator
-import koppen
-import trewartha
+import archive.calculator as calculator
+import archive.koppen as koppen
+import archive.trewartha as trewartha
 #from geopy import distance
 
 version = 1.4

@@ -1,0 +1,27 @@
+[project]
+name = "triangulum"
+version = "0.2.0"
+description = "Climate normals estimator for CONUS using nearest station data"
+readme = "README.md"
+authors = [
+    { name = "addisonkline", email = "77369109+addisonkline@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.12.5",
+]
+
+[project.scripts]
+triangulum = "triangulum.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.2.0",
+    "mypy>=1.20.0",
+    "ruff>=0.15.8",
+]
