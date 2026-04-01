@@ -242,7 +242,7 @@ class TriangulumClient:
         self,
         distances: dict[str, float]
     ) -> dict[str, float]:
-        exps = {station_id: exp(distance) for station_id, distance in distances.items()}
+        exps = {station_id: exp(-1.0 * distance) for station_id, distance in distances.items()}
         exps_sum = float(sum(exps.values()))
         weights = {k: v / exps_sum for k, v in exps.items()}
 
