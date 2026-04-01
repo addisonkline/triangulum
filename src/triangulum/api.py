@@ -3,7 +3,7 @@ from math import exp, sqrt
 
 import httpx
 
-from triangulum.types import ClimateNormalMonth, ClimateNormals, ClimateNormalsEstimate, StationInfo
+from triangulum.types import ClimateNormalMonth, ClimateNormals, ClimateNormalsEstimate, StationEstimateInfo, StationInfo
 from triangulum.utils import get_current_version
 
 
@@ -53,17 +53,36 @@ class TriangulumClient:
         weights = self._get_station_weights(
             distances=distances
         )
+        estimate_info = self._build_station_estimate_info(
+            stations=stations,
+            distances=distances,
+            weights=weights
+        )
 
         # nearby station normals
         nearby_normals = self._get_station_normals(
             station_ids=[v.id for _k, v in stations.items()]
         )
 
-        #print(distances)
-        #print(weights)
-        print(nearby_normals)
+        # print(distances)
+        # print(weights)
 
-        raise NotImplementedError
+        normals_estimate = self._get_coords_normals(
+            normals=nearby_normals,
+            weights=weights
+        )
+
+        # print(normals_estimate)
+
+        normals_estimate_final = ClimateNormalsEstimate(
+            temp_daily_mean=normals_estimate.temp_daily_mean,
+            temp_daily_max=normals_estimate.temp_daily_max,
+            temp_daily_min=normals_estimate.temp_daily_min,
+            precip_monthly_mean=normals_estimate.precip_monthly_mean,
+            stations=estimate_info
+        )
+
+        return normals_estimate_final
     
     def _get_coords_elev(
         self,
@@ -224,11 +243,84 @@ class TriangulumClient:
         self,
         distances: dict[str, float]
     ) -> dict[str, float]:
-        return {station_id: exp(distance) for station_id, distance in distances.items()}
+        exps = {station_id: exp(distance) for station_id, distance in distances.items()}
+        exps_sum = float(sum(exps.values()))
+        weights = {k: v / exps_sum for k, v in exps.items()}
+
+        return weights
     
     def _get_coords_normals(
         self,
         normals: dict[str, ClimateNormals],
         weights: dict[str, float]
     ) -> ClimateNormals:
-        raise NotImplementedError
+        station_normals: dict[str, ClimateNormals] = {}
+        for station_id in normals:
+            normal = normals[station_id]
+            weight = weights[station_id]
+            mly_tmax_normals = {k: weight * v for k, v in normal.temp_daily_max.items()}
+            mly_tavg_normals = {k: weight * v for k, v in normal.temp_daily_mean.items()}
+            mly_tmin_normals = {k: weight * v for k, v in normal.temp_daily_min.items()}
+            mly_prcp_normals = {k: weight * v for k, v in normal.precip_monthly_mean.items()}
+            norms = ClimateNormals(
+                temp_daily_max=mly_tmax_normals,
+                temp_daily_mean=mly_tavg_normals,
+                temp_daily_min=mly_tmin_normals,
+                precip_monthly_mean=mly_prcp_normals
+            )
+            station_normals.update({station_id: norms})
+
+        key_months: list[str] = MONTH_STRS
+
+        agg_mly_tmax_normals = {k: v.temp_daily_max for k, v in station_normals.items()}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_tmax_normals = {month: sum([v.get(int(month)) for _k, v in agg_mly_tmax_normals.items()]) for month in key_months}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_tavg_normals = {k: v.temp_daily_mean for k, v in station_normals.items()}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_tavg_normals = {month: sum([v.get(int(month)) for _k, v in agg_mly_tavg_normals.items()]) for month in key_months}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_tmin_normals = {k: v.temp_daily_min for k, v in station_normals.items()}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_tmin_normals = {month: sum([v.get(int(month)) for _k, v in agg_mly_tmin_normals.items()]) for month in key_months}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_prcp_normals = {k: v.precip_monthly_mean for k, v in station_normals.items()}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+        agg_mly_prcp_normals = {month: sum([v.get(int(month)) for _k, v in agg_mly_prcp_normals.items()]) for month in key_months}
+        # print("=" * 60)
+        # print(json.dumps(agg_mly_tmax_normals, indent=4))
+
+        return ClimateNormals(
+            temp_daily_mean=agg_mly_tavg_normals,
+            temp_daily_max=agg_mly_tmax_normals,
+            temp_daily_min=agg_mly_tmin_normals,
+            precip_monthly_mean=agg_mly_prcp_normals
+        )
+    
+    def _build_station_estimate_info(
+        self,
+        stations: dict[str, StationInfo],
+        distances: dict[str, float],
+        weights: dict[str, float]
+    ) -> dict[str, StationEstimateInfo]:
+        estimate_info_dict: dict[str, StationEstimateInfo] = {}
+        for station_id, station_info in stations.items():
+            estimate_info = StationEstimateInfo(
+                id=station_id,
+                name=station_info.name,
+                lat=station_info.lat,
+                lon=station_info.lon,
+                elev=station_info.elev,
+                distance=distances[station_id],
+                weight=weights[station_id]
+            )
+            estimate_info_dict.update({station_id: estimate_info})
+        return estimate_info_dict
+
