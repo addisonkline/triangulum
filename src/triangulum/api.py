@@ -1,4 +1,5 @@
 import json
+from math import exp, sqrt
 
 import httpx
 
@@ -37,24 +38,30 @@ class TriangulumClient:
         latitude: float,
         longitude: float,
     ) -> ClimateNormalsEstimate:
-        # get the elevation
-        elev = self._get_coords_elev(
-            latitude=latitude,
-            longitude=longitude
-        )
-
+        # basic station info
         stations = self._get_coords_stations(
             latitude=latitude,
             longitude=longitude
         )
 
+        # nearby stations and their distances
+        distances = self._get_station_distances(
+            stations=stations,
+            latitude=latitude,
+            longitude=longitude
+        )
+        weights = self._get_station_weights(
+            distances=distances
+        )
+
+        # nearby station normals
         nearby_normals = self._get_station_normals(
             station_ids=[v.id for _k, v in stations.items()]
         )
 
+        #print(distances)
+        #print(weights)
         print(nearby_normals)
-
-        print({k: v for k, v in stations.items()})
 
         raise NotImplementedError
     
@@ -83,7 +90,7 @@ class TriangulumClient:
         elev = json_response.get("value")
         if elev is None:
             raise RuntimeError(
-                f"elevation API did not return value as expected"
+                "elevation API did not return value as expected"
             )
         
         return float(elev)
@@ -123,8 +130,8 @@ class TriangulumClient:
             station = result.get("stations")[0]
             station_id = station.get("id")
             station_name = station.get("name")
-            lat = result.get("centroid").get("point")[0]
-            lon = result.get("centroid").get("point")[1]
+            lat = result.get("centroid").get("point")[1]
+            lon = result.get("centroid").get("point")[0]
 
             stn = StationInfo(
                 id=station_id,
@@ -186,7 +193,7 @@ class TriangulumClient:
                     continue
 
                 monthly_normal_obj = ClimateNormalMonth(
-                    month=month,
+                    month=int(month),
                     temp_daily_max=mly_tmax_normal,
                     temp_daily_mean=mly_tavg_normal,
                     temp_daily_min=mly_tmin_normal,
@@ -198,3 +205,30 @@ class TriangulumClient:
             station_normals_dict.update({station_id: station_normals_obj})
 
         return station_normals_dict
+    
+    def _get_station_distances(
+        self,
+        stations: dict[str, StationInfo],
+        latitude: float,
+        longitude: float,
+    ) -> dict[str, float]:
+        distances: dict[str, float] = {}
+
+        for station_id, station in stations.items():
+            distance = sqrt((latitude - station.lat)**2 + (longitude - station.lon)**2)
+            distances.update({station_id: distance})
+
+        return distances
+    
+    def _get_station_weights(
+        self,
+        distances: dict[str, float]
+    ) -> dict[str, float]:
+        return {station_id: exp(distance) for station_id, distance in distances.items()}
+    
+    def _get_coords_normals(
+        self,
+        normals: dict[str, ClimateNormals],
+        weights: dict[str, float]
+    ) -> ClimateNormals:
+        raise NotImplementedError
