@@ -35,10 +35,12 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    client = TriangulumClient()
+    client = TriangulumClient(
+        imperial_units=args.imperial
+    )
 
     result = client.get_coords_normals(
         latitude=args.lat,
         longitude=args.lon
     )
-    print(result)
+    print(result.pretty())

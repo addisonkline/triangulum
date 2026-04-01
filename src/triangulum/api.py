@@ -3,6 +3,7 @@ from math import exp, sqrt
 
 import httpx
 
+from triangulum.consts import MONTH_STRS
 from triangulum.types import ClimateNormalMonth, ClimateNormals, ClimateNormalsEstimate, StationEstimateInfo, StationInfo
 from triangulum.utils import get_current_version
 
@@ -11,8 +12,6 @@ ELEVATION_API = "https://epqs.nationalmap.gov/v1/json"
 CLIMATE_API = "https://www.ncei.noaa.gov/access/services/data/v1"
 # ?dataset=normals-monthly-1991-2020&stations={station_id}&startDate=2022-01-01&endDate=2022-12-31&format=json
 STATIONS_API = "https://www.ncei.noaa.gov/access/services/search/v1/data"
-
-MONTH_STRS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
 
 class TriangulumClient:
