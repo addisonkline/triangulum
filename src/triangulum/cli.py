@@ -58,4 +58,7 @@ def main() -> None:
     client = TriangulumClient(imperial_units=args.imperial)
 
     result = client.get_coords_normals(latitude=args.lat, longitude=args.lon)
-    print(result.pretty())
+    if args.plain:
+        print(result.pretty())
+    else:
+        result.rich_print()

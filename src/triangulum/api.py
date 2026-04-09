@@ -1,5 +1,5 @@
 from logging import getLogger
-from math import exp, sqrt
+from math import asin, cos, exp, radians, sin, sqrt
 
 import httpx
 
@@ -17,6 +17,8 @@ ELEVATION_API = "https://epqs.nationalmap.gov/v1/json"
 CLIMATE_API = "https://www.ncei.noaa.gov/access/services/data/v1"
 # ?dataset=normals-monthly-1991-2020&stations={station_id}&startDate=2022-01-01&endDate=2022-12-31&format=json
 STATIONS_API = "https://www.ncei.noaa.gov/access/services/search/v1/data"
+EARTH_RADIUS_KM = 6371.0088
+DISTANCE_WEIGHT_SCALE_KM = 80.0
 
 
 logger = getLogger(__name__)
@@ -57,6 +59,10 @@ class TriangulumClient:
             stations=stations, latitude=latitude, longitude=longitude
         )
         weights = self._get_station_weights(distances=distances)
+
+        logger.debug(f"distances: {distances}")
+        logger.debug(f"weights: {weights}")
+
         estimate_info = self._build_station_estimate_info(
             stations=stations, distances=distances, weights=weights
         )
@@ -65,9 +71,6 @@ class TriangulumClient:
         nearby_normals = self._get_station_normals(
             station_ids=[v.id for _k, v in stations.items()]
         )
-
-        # print(distances)
-        # print(weights)
 
         normals_estimate = self._get_coords_normals(
             normals=nearby_normals, weights=weights
@@ -81,6 +84,7 @@ class TriangulumClient:
             temp_daily_min=normals_estimate.temp_daily_min,
             precip_monthly_mean=normals_estimate.precip_monthly_mean,
             stations=estimate_info,
+            imperial=self.imperial,
         )
 
         logger.info(
@@ -266,27 +270,32 @@ class TriangulumClient:
         longitude: float,
     ) -> dict[str, float]:
         logger.info(
-            f"getting distances to {len(stations)} stations for coords: lat = {latitude}, lon = {longitude}"
+            f"getting great-circle distances to {len(stations)} stations for coords: lat = {latitude}, lon = {longitude}"
         )
         distances: dict[str, float] = {}
 
         for station_id, station in stations.items():
-            distance = sqrt(
-                (latitude - station.lat) ** 2 + (longitude - station.lon) ** 2
+            distance_km = self._haversine_distance_km(
+                latitude_1=latitude,
+                longitude_1=longitude,
+                latitude_2=station.lat,
+                longitude_2=station.lon,
             )
-            distances.update({station_id: distance})
+            distances.update({station_id: distance_km})
 
         logger.info(
-            f"successfully got distances to {len(distances)} stations for coords: let = {latitude}, lon = {longitude}"
+            f"successfully got great-circle distances to {len(distances)} stations for coords: lat = {latitude}, lon = {longitude}"
         )
 
         return distances
 
     def _get_station_weights(self, distances: dict[str, float]) -> dict[str, float]:
-        logger.info(f"calculating station weights for {len(distances)} distance values")
+        logger.info(
+            f"calculating station weights for {len(distances)} distance values using decay scale {DISTANCE_WEIGHT_SCALE_KM} km"
+        )
 
         exps = {
-            station_id: exp(-1.0 * distance)
+            station_id: exp(-1.0 * (distance / DISTANCE_WEIGHT_SCALE_KM))
             for station_id, distance in distances.items()
         }
         exps_sum = float(sum(exps.values()))
@@ -297,6 +306,28 @@ class TriangulumClient:
         )
 
         return weights
+
+    def _haversine_distance_km(
+        self,
+        latitude_1: float,
+        longitude_1: float,
+        latitude_2: float,
+        longitude_2: float,
+    ) -> float:
+        lat_1 = radians(latitude_1)
+        lon_1 = radians(longitude_1)
+        lat_2 = radians(latitude_2)
+        lon_2 = radians(longitude_2)
+
+        delta_lat = lat_2 - lat_1
+        delta_lon = lon_2 - lon_1
+
+        a = (
+            sin(delta_lat / 2) ** 2
+            + cos(lat_1) * cos(lat_2) * sin(delta_lon / 2) ** 2
+        )
+        c = 2 * asin(sqrt(a))
+        return EARTH_RADIUS_KM * c
 
     def _get_coords_normals(
         self, normals: dict[str, ClimateNormals], weights: dict[str, float]
