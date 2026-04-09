@@ -3,6 +3,7 @@ from math import asin, cos, exp, radians, sin, sqrt
 
 import httpx
 
+from triangulum.cache import TriangulumCache
 from triangulum.consts import MONTH_STRS
 from triangulum.types import (
     ClimateNormalMonth,
@@ -22,6 +23,8 @@ DISTANCE_WEIGHT_SCALE_KM = 80.0
 
 
 logger = getLogger(__name__)
+
+_cache = TriangulumCache()
 
 
 class TriangulumClient:
@@ -93,6 +96,7 @@ class TriangulumClient:
 
         return normals_estimate_final
 
+    @_cache.check
     def _get_coords_elev(
         self,
         latitude: float,
@@ -121,6 +125,7 @@ class TriangulumClient:
 
         return float(elev)
 
+    @_cache.check
     def _get_coords_stations(
         self, latitude: float, longitude: float
     ) -> dict[str, StationInfo]:
@@ -180,6 +185,7 @@ class TriangulumClient:
 
         return station_info
 
+    @_cache.check
     def _get_station_normals(self, station_ids: list[str]) -> dict[str, ClimateNormals]:
         logger.info(f"getting station normals for {len(station_ids)} station IDs")
 
@@ -322,10 +328,7 @@ class TriangulumClient:
         delta_lat = lat_2 - lat_1
         delta_lon = lon_2 - lon_1
 
-        a = (
-            sin(delta_lat / 2) ** 2
-            + cos(lat_1) * cos(lat_2) * sin(delta_lon / 2) ** 2
-        )
+        a = sin(delta_lat / 2) ** 2 + cos(lat_1) * cos(lat_2) * sin(delta_lon / 2) ** 2
         c = 2 * asin(sqrt(a))
         return EARTH_RADIUS_KM * c
 
