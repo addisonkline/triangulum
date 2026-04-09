@@ -37,7 +37,9 @@ class ClimateNormals(BaseModel):
             temp_daily_max={month.month: month.temp_daily_max for month in months},
             temp_daily_mean={month.month: month.temp_daily_mean for month in months},
             temp_daily_min={month.month: month.temp_daily_min for month in months},
-            precip_monthly_mean={month.month: month.precip_monthly_mean for month in months}
+            precip_monthly_mean={
+                month.month: month.precip_monthly_mean for month in months
+            },
         )
 
 
@@ -49,33 +51,79 @@ class ClimateNormalsEstimate(ClimateNormals):
         column_width: int = 8,
         column_width_stations: int = 16,
     ) -> str:
-        num_columns = 14 # 1 per month + annual + header
+        num_columns = 14  # 1 per month + annual + header
         len_line = ((2 + column_width) * num_columns) + 1
 
         final_str = "|" + ((len_line - 2) * "=") + "|"
         # Month row
         final_str += "\n| " + fill_string("month", column_width) + "| "
-        final_str += "| ".join([fill_string(month, column_width) for month in MONTH_STRS])
+        final_str += "| ".join(
+            [fill_string(month, column_width) for month in MONTH_STRS]
+        )
         final_str += "| " + fill_string("annual", column_width) + "|"
-        final_str += "\n|" + "|".join([fill_string("=", column_width + 1, "=") for i in range(num_columns)]) + "|"
+        final_str += (
+            "\n|"
+            + "|".join(
+                [fill_string("=", column_width + 1, "=") for i in range(num_columns)]
+            )
+            + "|"
+        )
         # T_max row
         final_str += "\n| " + fill_string("T_max", column_width) + "| "
-        final_str += "| ".join([fill_string(str(self.temp_daily_max[int(month)]), column_width) for month in MONTH_STRS])
+        final_str += "| ".join(
+            [
+                fill_string(str(self.temp_daily_max[int(month)]), column_width)
+                for month in MONTH_STRS
+            ]
+        )
         final_str += "| " + fill_string("TODO", column_width) + "|"
-        final_str += "\n|" + "|".join([fill_string("-", column_width + 1, "-") for i in range(num_columns)]) + "|"
+        final_str += (
+            "\n|"
+            + "|".join(
+                [fill_string("-", column_width + 1, "-") for i in range(num_columns)]
+            )
+            + "|"
+        )
         # T_avg row
         final_str += "\n| " + fill_string("T_avg", column_width) + "| "
-        final_str += "| ".join([fill_string(str(self.temp_daily_mean[int(month)]), column_width) for month in MONTH_STRS])
+        final_str += "| ".join(
+            [
+                fill_string(str(self.temp_daily_mean[int(month)]), column_width)
+                for month in MONTH_STRS
+            ]
+        )
         final_str += "| " + fill_string("TODO", column_width) + "|"
-        final_str += "\n|" + "|".join([fill_string("-", column_width + 1, "-") for i in range(num_columns)]) + "|"
+        final_str += (
+            "\n|"
+            + "|".join(
+                [fill_string("-", column_width + 1, "-") for i in range(num_columns)]
+            )
+            + "|"
+        )
         # T_min row
         final_str += "\n| " + fill_string("T_min", column_width) + "| "
-        final_str += "| ".join([fill_string(str(self.temp_daily_min[int(month)]), column_width) for month in MONTH_STRS])
+        final_str += "| ".join(
+            [
+                fill_string(str(self.temp_daily_min[int(month)]), column_width)
+                for month in MONTH_STRS
+            ]
+        )
         final_str += "| " + fill_string("TODO", column_width) + "|"
-        final_str += "\n|" + "|".join([fill_string("-", column_width + 1, "-") for i in range(num_columns)]) + "|"
+        final_str += (
+            "\n|"
+            + "|".join(
+                [fill_string("-", column_width + 1, "-") for i in range(num_columns)]
+            )
+            + "|"
+        )
         # P_avg row
         final_str += "\n| " + fill_string("P_avg", column_width) + "| "
-        final_str += "| ".join([fill_string(str(self.precip_monthly_mean[int(month)]), column_width) for month in MONTH_STRS])
+        final_str += "| ".join(
+            [
+                fill_string(str(self.precip_monthly_mean[int(month)]), column_width)
+                for month in MONTH_STRS
+            ]
+        )
         final_str += "| " + fill_string("TODO", column_width) + "|"
 
         final_str += "\n|" + ((len_line - 2) * "=") + "|"
@@ -89,15 +137,41 @@ class ClimateNormalsEstimate(ClimateNormals):
         final_str += fill_string("lon", column_width_stations) + "| "
         final_str += fill_string("dist", column_width_stations) + "| "
         final_str += fill_string("weight", column_width_stations) + "| "
-        final_str += "\n|" + "|".join([fill_string("=", column_width_stations + 1, "=") for i in range(num_columns_stations)]) + "|"
+        final_str += (
+            "\n|"
+            + "|".join(
+                [
+                    fill_string("=", column_width_stations + 1, "=")
+                    for i in range(num_columns_stations)
+                ]
+            )
+            + "|"
+        )
         for station_id, station_info in self.stations.items():
             final_str += "\n| " + fill_string(station_id, column_width_stations) + "| "
             final_str += fill_string(station_info.name, column_width_stations) + "| "
-            final_str += fill_string(str(station_info.lat), column_width_stations) + "| "
-            final_str += fill_string(str(station_info.lon), column_width_stations) + "| "
-            final_str += fill_string(str(station_info.distance), column_width_stations) + "| "
-            final_str += fill_string(str(station_info.weight), column_width_stations) + "| "
-            final_str += "\n|" + "|".join([fill_string("-", column_width_stations + 1, "-") for i in range(num_columns_stations)]) + "|"
+            final_str += (
+                fill_string(str(station_info.lat), column_width_stations) + "| "
+            )
+            final_str += (
+                fill_string(str(station_info.lon), column_width_stations) + "| "
+            )
+            final_str += (
+                fill_string(str(station_info.distance), column_width_stations) + "| "
+            )
+            final_str += (
+                fill_string(str(station_info.weight), column_width_stations) + "| "
+            )
+            final_str += (
+                "\n|"
+                + "|".join(
+                    [
+                        fill_string("-", column_width_stations + 1, "-")
+                        for i in range(num_columns_stations)
+                    ]
+                )
+                + "|"
+            )
 
         final_str += "\n|" + ((len_line_stations - 2) * "=") + "|"
 
