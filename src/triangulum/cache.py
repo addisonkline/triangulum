@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import datetime, timezone
 from functools import wraps
 from logging import getLogger
@@ -20,6 +21,10 @@ class CacheEntry(BaseModel):
 
 class CachedCoordsStations(CacheEntry):
     value: dict[str, StationInfo]
+
+
+class CachedStationNormals(CacheEntry):
+    value: dict[str, ClimateNormals]
 
 
 class TriangulumCache:
@@ -56,49 +61,83 @@ class TriangulumCache:
 
             if result is None:
                 result = func(*args, **kwargs)
-                self._cache_insert(result, req_type, **kwargs)
+                match req_type:
+                    case "_get_station_normals":
+                        self._cache_insert_station_normals(result, **kwargs)
+                    case "_get_coords_stations":
+                        self._cache_insert_coords_stations(result, **kwargs)
+                    case _:
+                        raise ValueError(f"invalid operation: {req_type}")
 
             return result
 
         return wrapper
 
-    def _cache_insert(
-        self,
-        result: Any,
-        req_type: str,
-        **kwargs: Any,
+    def _cache_insert_station_normals(
+        self, result: dict[str, ClimateNormals], station_ids: list[str]
     ) -> None:
         """
-        Insert a new entry into the cache.
+        Insert a new station normals entry into the cache.
         """
-        manifest_key = "&".join([req_type])
-        for k, v in kwargs.items():
-            manifest_key += f"&{v}"
-        cache_filepath = self.cache_root / manifest_key
+        logger.info(
+            f"attempting cache insert: _get_station_normals: station_ids = {station_ids}"
+        )
 
-        if isinstance(result, StationInfo):
-            result_obj = result.model_dump()
-        else:
-            result_obj = json.dumps(result)
+        entry_id = str(uuid.uuid4())
+        entry_key = "&".join(station_ids)
 
-        with open(cache_filepath, "w") as cachefile:
-            cachefile.write(
-                json.dumps(
-                    {
-                        "key": manifest_key,
-                        "value": result_obj,
-                        "timestamp": datetime.now(timezone.utc),
-                    }
-                )
+        # write cache entry
+        cache_entry_path = self.cache_root / f"{entry_id}._get_station_normals"
+        with open(cache_entry_path, "w") as cachefile:
+            entry_obj = CachedStationNormals(
+                key=entry_key, value=result, timestamp=datetime.now(timezone.utc)
             )
+            cachefile.write(entry_obj.model_dump_json())
 
         # update manifest file
-        manifest_file = self.cache_root / "manifest.lock"
-        with open(manifest_file, "+") as manifile:
-            manifest_content = manifile.read()
-            manifest_content_obj = json.loads(manifest_content)
-            manifest_content_obj.update({manifest_key, cache_filepath})
-            manifile.write(json.dumps(manifest_content_obj))
+        manifest_file_path = self.cache_root / "manifest.lock"
+        with open(manifest_file_path, "a") as manifile:
+            new_entry = entry_key + "=" + entry_id + "\n"
+            manifile.writelines(new_entry)
+
+        logger.info(
+            f"cache insert successful: _get_station_normals: station_ids = {station_ids}"
+        )
+
+    def _cache_insert_coords_stations(
+        self, result: dict[str, StationInfo], latitude: float, longitude: float
+    ) -> None:
+        """
+        Insert a new coordinates stations entry into the cache.
+        """
+
+        logger.info(
+            f"attempting cache insert: _get_coords_stations: lat = {latitude}, lon = {longitude}"
+        )
+
+        lat_key = str(latitude)[:5]
+        lon_key = str(longitude)[:5]
+
+        entry_id = str(uuid.uuid4())
+        entry_key = f"_get_coords_stations&{lat_key}&{lon_key}"
+
+        # write cache entry
+        cache_entry_path = self.cache_root / f"{entry_id}._get_coords_stations"
+        with open(cache_entry_path, "w") as cachefile:
+            entry_obj = CachedCoordsStations(
+                key=entry_key, value=result, timestamp=datetime.now(timezone.utc)
+            )
+            cachefile.write(entry_obj.model_dump_json())
+
+        # update manifest file
+        manifest_file_path = self.cache_root / "manifest.lock"
+        with open(manifest_file_path, "a") as manifile:
+            new_entry = entry_key + "=" + entry_id + "\n"
+            manifile.writelines(new_entry)
+
+        logger.info(
+            f"cache insert successful: _get_coords_stations: lat = {latitude}, lon = {longitude}"
+        )
 
     def _handle_station_normals(
         self, station_ids: list[str]
@@ -110,7 +149,42 @@ class TriangulumCache:
             f"handling _get_station_normals request for station IDs: {station_ids}"
         )
 
-        raise NotImplementedError
+        ids_key = "&".join([id for id in station_ids])
+
+        result = self._get_station_normals_or_none(ids_key=ids_key)
+
+        return result
+
+    def _get_station_normals_or_none(
+        self, ids_key: str
+    ) -> dict[str, ClimateNormals] | None:
+        """
+        Attempt to get a specific cache entry for _get_station_normals, if one exists.
+        """
+        manifest_file = self.cache_root / "manifest.lock"
+        request_type_key = "_get_station_normals"
+        manifest_key = request_type_key + "&" + ids_key
+
+        with open(manifest_file) as manifile:
+            manifest_entries = manifile.readlines()
+            manifest_entries_obj = {
+                entry.split("=")[0]: entry.split("=")[1] for entry in manifest_entries
+            }
+            if manifest_key in manifest_entries_obj:
+                manifest_entry_path = (
+                    manifest_entries_obj[manifest_key].strip() + "._get_station_normals"
+                )
+                cached_file = self.cache_root / manifest_entry_path
+                with open(cached_file) as cachefile:
+                    cachefile_content = cachefile.read()
+                    cachefile_content_obj = json.loads(cachefile_content)
+                    logger.info(f"cache hit: {ids_key}")
+                    return CachedStationNormals.model_validate(
+                        cachefile_content_obj
+                    ).value
+            else:
+                logger.info(f"cache miss: {ids_key}")
+                return None
 
     def _handle_coords_stations(
         self,
@@ -124,8 +198,8 @@ class TriangulumCache:
             f"handling _get_coords_stations request for lat = {latitude}, lot = {longitude}"
         )
 
-        lat_key = str(latitude)[:4]
-        lon_key = str(longitude)[:4]
+        lat_key = str(latitude)[:5]
+        lon_key = str(longitude)[:5]
 
         result = self._get_coords_stations_or_none(
             lat_key=lat_key,
@@ -146,15 +220,22 @@ class TriangulumCache:
         manifest_key = "&".join([request_type_key, lat_key, lon_key])
 
         with open(manifest_file) as manifile:
-            manifest_content = manifile.read()
-            manifest_content_obj = json.loads(manifest_content)
-            if manifest_key in manifest_content_obj:
-                cached_file = manifest_content_obj[manifest_key]
+            manifest_entries = manifile.readlines()
+            manifest_entries_obj = {
+                entry.split("=")[0]: entry.split("=")[1] for entry in manifest_entries
+            }
+            if manifest_key in manifest_entries_obj:
+                manifest_entry_path = (
+                    manifest_entries_obj[manifest_key].strip() + "._get_coords_stations"
+                )
+                cached_file = self.cache_root / manifest_entry_path
                 with open(cached_file) as cachefile:
                     cachefile_content = cachefile.read()
                     cachefile_content_obj = json.loads(cachefile_content)
+                    logger.info(f"cache hit: {manifest_key}")
                     return CachedCoordsStations.model_validate(
                         cachefile_content_obj
                     ).value
             else:
+                logger.info(f"cache miss: {manifest_key}")
                 return None
